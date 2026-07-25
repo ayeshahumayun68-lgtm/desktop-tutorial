@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayesha Atelier — Designed by Ayesha</title>
+<meta name="description" content="Ayesha Atelier — timeless, bespoke fashion. Handcrafted luxury, sustainably made.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Swiper -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- AOS -->
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          ivory: '#FAF9F6',
+          noir: '#121212',
+          gold: '#C5A059',
+          goldLight: '#D4AF37',
+          obsidian: '#1A1A1A',
+          sand: '#F4EFEA',
+        },
+        fontFamily: {
+          display: ['"Playfair Display"', 'serif'],
+          script: ['"Cormorant Garamond"', 'serif'],
+          body: ['"Inter"', 'sans-serif'],
+        },
+      },
+    },
+  }
+</script>
+
+<style>
+  :root{ --gold: #C5A059; --gold-light:#D4AF37; }
+  *{ scroll-behavior: smooth; }
+  body{ font-family:'Inter', sans-serif; background:#FAF9F6; color:#1A1A1A; transition: background .4s ease, color .4s ease; }
+  html.dark body{ background:#121212; color:#FAF9F6; }
+  .font-display{ font-family:'Playfair Display', serif; }
+  .font-script{ font-family:'Cormorant Garamond', serif; }
+
+  /* thin gold stitch divider — signature motif referencing tailoring/atelier */
+  .stitch{
+    position:relative; height:1px; width:100%;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 6px, transparent 6px 12px);
+    opacity:.55;
+  }
+  .stitch-v{
+    width:1px; background-image: repeating-linear-gradient(180deg, var(--gold) 0 6px, transparent 6px 12px);
+    opacity:.55;
+  }
+
+  ::selection{ background: var(--gold); color:#fff; }
+
+  /* Glassmorphism header */
+  .glass{
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: rgba(250,249,246,0.72);
+    border-bottom: 1px solid rgba(197,160,89,.18);
+  }
+  html.dark .glass{ background: rgba(18,18,18,0.66); border-bottom: 1px solid rgba(197,160,89,.15); }
+
+  .nav-link{ position:relative; }
+  .nav-link::after{
+    content:''; position:absolute; left:0; bottom:-4px; height:1px; width:0%;
+    background: var(--gold); transition: width .35s ease;
+  }
+  .nav-link:hover::after, .nav-link.active::after{ width:100%; }
+
+  .tab-page{ display:none; }
+  .tab-page.active{ display:block; animation: fadeUp .5s ease; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+  .gold-btn{
+    background: linear-gradient(120deg, var(--gold-light), var(--gold));
+    color:#1A1A1A; letter-spacing:.06em;
+  }
+  .gold-btn:hover{ filter: brightness(1.08); }
+
+  .outline-btn{
+    border:1px solid var(--gold); color:inherit;
+  }
+
+  /* product card image swap */
+  .prod-img-wrap{ overflow:hidden; position:relative; aspect-ratio: 3/4; }
+  .prod-img-wrap img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition: opacity .5s ease, transform .6s ease; }
+  .prod-img-wrap img.secondary{ opacity:0; }
+  .prod-card:hover .prod-img-wrap img.primary{ opacity:0; }
+  .prod-card:hover .prod-img-wrap img.secondary{ opacity:1; transform:scale(1.04); }
+
+  .action-bar{ transform: translateY(100%); opacity:0; transition: all .35s ease; }
+  .prod-card:hover .action-bar{ transform: translateY(0); opacity:1; }
+
+  .cat-card img{ transition: transform .8s cubic-bezier(.2,.8,.2,1); }
+  .cat-card:hover img{ transform: scale(1.08); }
+
+  /* Cart / wishlist badge */
+  .badge{
+    position:absolute; top:-6px; right:-8px; background:var(--gold);
+    color:#1A1A1A; font-size:10px; min-width:16px; height:16px; border-radius:999px;
+    display:flex; align-items:center; justify-content:center; font-weight:600;
+  }
+
+  /* Drawer */
+  .drawer{ transform: translateX(100%); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .drawer.open{ transform: translateX(0); }
+  .overlay{ opacity:0; pointer-events:none; transition: opacity .35s ease; }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+
+  /* modal */
+  .modal-panel{ transform: scale(.94) translateY(10px); opacity:0; transition: all .35s ease; }
+  .modal-wrap.open .modal-panel{ transform: scale(1) translateY(0); opacity:1; }
+
+  .swatch{ width:22px; height:22px; border-radius:999px; cursor:pointer; border:2px solid transparent; }
+  .swatch.selected{ border-color: var(--gold); }
+
+  .size-chip{ border:1px solid rgba(26,26,26,.25); cursor:pointer; }
+  html.dark .size-chip{ border-color: rgba(250,249,246,.25); }
+  .size-chip.selected{ background:var(--gold); border-color:var(--gold); color:#1A1A1A; }
+
+  input:focus, textarea:focus, button:focus-visible, a:focus-visible{
+    outline: 1.5px solid var(--gold); outline-offset: 2px;
+  }
+
+  .mono-a{
+    font-family:'Playfair Display', serif; font-style:italic;
+  }
+
+  .fade-mask{
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  }
+
+  .toast{ transform: translateY(20px); opacity:0; transition: all .35s ease; }
+  .toast.show{ transform: translateY(0); opacity:1; }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background: rgba(197,160,89,.5); border-radius:4px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: .001s !important; transition-duration: .001s !important; }
+  }
+
+  /* pop effect for every card / box / button across the site */
+  .pop, .cat-card, .prod-card, .pillar-card, .gold-btn, .outline-btn, .size-chip, .swatch,
+  #filterBar .filter-btn, footer a, .social-btn{
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, filter .28s ease;
+  }
+  .pop:hover, .cat-card:hover, .prod-card:hover, .pillar-card:hover, .gold-btn:hover,
+  .outline-btn:hover, #filterBar .filter-btn:hover, footer a:hover, .social-btn:hover{
+    transform: scale(1.055) translateY(-2px);
+    box-shadow: 0 14px 30px -12px rgba(197,160,89,.45);
+    z-index: 2;
+  }
+  .swatch:hover, .size-chip:hover{ transform: scale(1.15); }
+</style>
+</head>
+<body class="font-body">
+
+<!-- ============ HEADER ============ -->
+<header id="siteHeader" class="fixed top-0 left-0 right-0 z-40 transition-all duration-500">
+  <div class="glass">
+    <div class="max-w-7xl mx-auto px-5 md:px-8 h-20 flex items-center justify-between">
+      <button onclick="goTo('home')" class="font-display text-2xl md:text-[26px] tracking-[0.12em] flex items-baseline gap-1">
+        <span>AYESHA</span><span class="mono-a text-gold text-sm hidden sm:inline">atelier</span>
+      </button>
+
+      <nav class="hidden lg:flex items-center gap-10 font-body text-[13px] tracking-[0.14em] uppercase">
+        <button data-page="home" class="nav-link active pb-1" onclick="goTo('home')">Home</button>
+        <button data-page="about" class="nav-link pb-1" onclick="goTo('about')">About</button>
+        <button data-page="collection" class="nav-link pb-1" onclick="goTo('collection')">Collection</button>
+        <button data-page="contact" class="nav-link pb-1" onclick="goTo('contact')">Contact</button>
+      </nav>
+
+      <div class="flex items-center gap-4 md:gap-5">
+        <button onclick="toggleSearch()" aria-label="Search" class="hover:text-gold transition"><i data-lucide="search" class="w-[19px] h-[19px]"></i></button>
+        <button onclick="toggleTheme()" aria-label="Toggle dark mode" class="hover:text-gold transition">
+          <i data-lucide="sun-medium" id="iconSun" class="w-[19px] h-[19px] hidden"></i>
+          <i data-lucide="moon" id="iconMoon" class="w-[19px] h-[19px]"></i>
+        </button>
+        <button onclick="goTo('collection'); scrollToShop();" class="relative hover:text-gold transition" aria-label="Wishlist">
+          <i data-lucide="heart" class="w-[19px] h-[19px]"></i>
+          <span id="wishBadge" class="badge hidden">0</span>
+        </button>
+        <button onclick="openCart()" class="relative hover:text-gold transition" aria-label="Cart">
+          <i data-lucide="shopping-bag" class="w-[19px] h-[19px]"></i>
+          <span id="cartBadge" class="badge hidden">0</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="lg:hidden hover:text-gold transition" aria-label="Menu">
+          <i data-lucide="menu" class="w-[21px] h-[21px]"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- search bar -->
+    <div id="searchBar" class="hidden border-t border-gold/20">
+      <div class="max-w-7xl mx-auto px-5 md:px-8 py-4 flex items-center gap-3">
+        <i data-lucide="search" class="w-4 h-4 opacity-60"></i>
+        <input id="globalSearch" type="text" placeholder="Search the atelier — dresses, coats, accessories…"
+          class="bg-transparent flex-1 outline-none text-sm font-body placeholder:opacity-50" oninput="liveSearch(this.value)">
+        <button onclick="toggleSearch()" class="opacity-60 hover:opacity-100"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- mobile menu -->
+<div id="mobileMenu" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-noir/60" onclick="toggleMobileMenu()"></div>
+  <div class="absolute right-0 top-0 bottom-0 w-[78%] max-w-xs bg-ivory dark:bg-obsidian p-8 flex flex-col gap-8">
+    <div class="flex justify-between items-center">
+      <span class="font-display text-xl tracking-widest">AYESHA</span>
+      <button onclick="toggleMobileMenu()"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <nav class="flex flex-col gap-6 font-display text-2xl">
+      <button onclick="goTo('home'); toggleMobileMenu();" class="text-left">Home</button>
+      <button onclick="goTo('about'); toggleMobileMenu();" class="text-left">About</button>
+      <button onclick="goTo('collection'); toggleMobileMenu();" class="text-left">Collection</button>
+      <button onclick="goTo('contact'); toggleMobileMenu();" class="text-left">Contact</button>
+    </nav>
+    <div class="stitch mt-auto"></div>
+    <p class="text-xs opacity-60 tracking-widest uppercase">Bespoke fashion, made to last</p>
+  </div>
+</div>
+
+<main class="pt-20">
+
+<!-- ============ HOME ============ -->
+<section id="page-home" class="tab-page active">
+
+  <!-- HERO -->
+  <section class="relative h-[92vh] min-h-[560px] overflow-hidden">
+    <div class="swiper heroSwiper h-full">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide relative">
+          <img src="https://images.unsplash.com/photo-1733470381571-c3d082e68457?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Pakistani embroidered formal dress">
+        </div>
+        <div class="swiper-slide relative">
+          <img src="https://images.unsplash.com/photo-1733470324488-d0e10d014d80?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Elegant Pakistani bridal outfit">
+        </div>
+        <div class="swiper-slide relative">
+          <img src="https://images.unsplash.com/photo-1747847471517-952a3eb93a89?q=80&w=1600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Pakistani formal wear model">
+        </div>
+      </div>
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-noir/70 via-noir/20 to-noir/40 pointer-events-none"></div>
+
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 pointer-events-none">
+      <p class="tracking-[0.35em] text-gold text-xs md:text-sm uppercase mb-4 font-script italic" data-aos="fade">Welcome to our Website</p>
+      <p class="tracking-[0.35em] text-gold text-[11px] md:text-xs uppercase mb-5" data-aos="fade-down">Autumn — Winter Collection</p>
+      <h1 class="font-display text-white text-4xl sm:text-5xl md:text-7xl leading-[1.08] max-w-4xl" data-aos="fade-up">
+        Elegant Fashion<br class="hidden md:block"> Designed by <span class="font-script italic text-gold">Ayesha</span>
+      </h1>
+      <p class="text-white/85 mt-6 max-w-lg text-sm md:text-base font-light" data-aos="fade-up" data-aos-delay="150">
+        Discover timeless style, premium quality, and bespoke fashion collections — crafted for those who dress with intention.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center mt-9 pointer-events-auto" data-aos="fade-up" data-aos-delay="300">
+        <button onclick="goTo('collection')" class="gold-btn px-8 py-3.5 text-xs tracking-[0.18em] uppercase">Shop Now</button>
+        <button onclick="goTo('collection')" class="border border-white/70 text-white px-8 py-3.5 text-xs tracking-[0.18em] uppercase hover:bg-white/10 transition">Explore Collection</button>
+      </div>
+    </div>
+
+    <div class="absolute bottom-7 left-0 right-0 flex justify-center gap-2 heroSwiperPag z-10"></div>
+  </section>
+
+  <!-- CATEGORY SHOWCASE -->
+  <section class="max-w-7xl mx-auto px-5 md:px-8 py-20 md:py-28">
+    <div class="text-center mb-14" data-aos="fade-up">
+      <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-3">Curated For You</p>
+      <h2 class="font-display text-3xl md:text-4xl">Shop by Category</h2>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div class="cat-card relative overflow-hidden aspect-[3/4] cursor-pointer group" data-aos="fade-up" onclick="goToCategory('Women')">
+        <img src="https://images.unsplash.com/photo-1733209590486-4ed0bfcbc52a?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Women's Pakistani fashion category">
+        <div class="absolute inset-0 bg-gradient-to-t from-noir/75 via-transparent to-transparent"></div>
+        <span class="absolute bottom-5 left-5 text-white font-display text-xl">Women</span>
+      </div>
+      <div class="cat-card relative overflow-hidden aspect-[3/4] cursor-pointer group" data-aos="fade-up" data-aos-delay="100" onclick="goToCategory('Formal')">
+        <img src="https://images.unsplash.com/photo-1747847471517-952a3eb93a89?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Formal wear category">
+        <div class="absolute inset-0 bg-gradient-to-t from-noir/75 via-transparent to-transparent"></div>
+        <span class="absolute bottom-5 left-5 text-white font-display text-xl">Formal Wear</span>
+      </div>
+      <div class="cat-card relative overflow-hidden aspect-[3/4] cursor-pointer group" data-aos="fade-up" data-aos-delay="200" onclick="goToCategory('New Arrivals')">
+        <img src="https://images.unsplash.com/photo-1733470381436-bb5a2a441708?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="New arrivals category">
+        <div class="absolute inset-0 bg-gradient-to-t from-noir/75 via-transparent to-transparent"></div>
+        <span class="absolute bottom-5 left-5 text-white font-display text-xl">New Arrivals</span>
+      </div>
+      <div class="cat-card relative overflow-hidden aspect-[3/4] cursor-pointer group" data-aos="fade-up" data-aos-delay="300" onclick="goToCategory('Accessories')">
+        <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover" alt="Accessories category">
+        <div class="absolute inset-0 bg-gradient-to-t from-noir/75 via-transparent to-transparent"></div>
+        <span class="absolute bottom-5 left-5 text-white font-display text-xl">Accessories</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="stitch max-w-7xl mx-auto"></div>
+
+  <!-- FEATURED / BEST SELLERS -->
+  <section class="max-w-7xl mx-auto px-5 md:px-8 py-20 md:py-28">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-4" data-aos="fade-up">
+      <div>
+        <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-3">Best Sellers</p>
+        <h2 class="font-display text-3xl md:text-4xl">Featured Pieces</h2>
+      </div>
+      <button onclick="goTo('collection')" class="text-xs tracking-[0.18em] uppercase border-b border-gold pb-1 self-start md:self-auto">View All →</button>
+    </div>
+    <div id="featuredGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"></div>
+  </section>
+
+  <div class="stitch max-w-7xl mx-auto"></div>
+
+  <!-- VALUE PROP -->
+  <section class="max-w-7xl mx-auto px-5 md:px-8 py-20 md:py-28">
+    <div class="grid md:grid-cols-3 gap-10">
+      <div class="pop text-center px-4 py-6 border border-transparent hover:border-gold/20" data-aos="fade-up">
+        <i data-lucide="scissors" class="w-7 h-7 mx-auto mb-5 text-gold"></i>
+        <h3 class="font-display text-xl mb-3">Handcrafted Perfection</h3>
+        <p class="text-sm opacity-70 leading-relaxed">Every seam is stitched by hand in our atelier, honoring techniques passed through generations of tailoring.</p>
+      </div>
+      <div class="pop text-center px-4 py-6 border border-transparent hover:border-gold/20" data-aos="fade-up" data-aos-delay="150">
+        <i data-lucide="leaf" class="w-7 h-7 mx-auto mb-5 text-gold"></i>
+        <h3 class="font-display text-xl mb-3">Sustainable Luxury</h3>
+        <p class="text-sm opacity-70 leading-relaxed">Ethically sourced fabrics and slow-fashion production, made to be worn and loved for years.</p>
+      </div>
+      <div class="pop text-center px-4 py-6 border border-transparent hover:border-gold/20" data-aos="fade-up" data-aos-delay="300">
+        <i data-lucide="globe" class="w-7 h-7 mx-auto mb-5 text-gold"></i>
+        <h3 class="font-display text-xl mb-3">Worldwide Shipping</h3>
+        <p class="text-sm opacity-70 leading-relaxed">Carefully packaged and delivered to your door, wherever in the world you call home.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="bg-sand dark:bg-[#1a1a1a] py-20 md:py-28">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-3" data-aos="fade-up">Testimonials</p>
+      <h2 class="font-display text-3xl md:text-4xl mb-12" data-aos="fade-up">What Our Clients Say</h2>
+      <div class="swiper testiSwiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="flex justify-center gap-1 mb-5 text-gold">★★★★★</div>
+            <p class="font-script italic text-xl md:text-2xl leading-relaxed mb-6">"The gown Ayesha made for my sister's wedding was beyond anything I imagined — the fit, the fabric, the finishing. True craftsmanship."</p>
+            <p class="text-xs tracking-widest uppercase opacity-60">— Hania R., Lahore</p>
+          </div>
+          <div class="swiper-slide">
+            <div class="flex justify-center gap-1 mb-5 text-gold">★★★★★</div>
+            <p class="font-script italic text-xl md:text-2xl leading-relaxed mb-6">"Impeccable quality and service. My formal coat still looks brand new after two years of wear."</p>
+            <p class="text-xs tracking-widest uppercase opacity-60">— Sarah M., Dubai</p>
+          </div>
+          <div class="swiper-slide">
+            <div class="flex justify-center gap-1 mb-5 text-gold">★★★★★</div>
+            <p class="font-script italic text-xl md:text-2xl leading-relaxed mb-6">"Accessible luxury done right. Every piece feels considered, from the stitching to the packaging."</p>
+            <p class="text-xs tracking-widest uppercase opacity-60">— Amelia K., London</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="max-w-3xl mx-auto px-6 py-20 md:py-28 text-center">
+    <i data-lucide="mail" class="w-6 h-6 mx-auto mb-5 text-gold"></i>
+    <h2 class="font-display text-2xl md:text-3xl mb-3">Join the Atelier List</h2>
+    <p class="text-sm opacity-70 mb-8">Get 10% off your first order, plus early access to new collections.</p>
+    <form id="newsletterForm" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onsubmit="handleNewsletter(event)">
+      <input required type="email" placeholder="Your email address" class="flex-1 bg-transparent border border-gold/40 px-5 py-3.5 text-sm outline-none focus:border-gold">
+      <button type="submit" class="gold-btn px-7 py-3.5 text-xs tracking-[0.18em] uppercase whitespace-nowrap">Subscribe</button>
+    </form>
+    <p id="newsletterMsg" class="text-xs text-gold mt-4 opacity-0 transition-opacity">Welcome to the atelier — check your inbox.</p>
+  </section>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="page-about" class="tab-page">
+  <section class="max-w-7xl mx-auto px-5 md:px-8 pt-16 pb-24">
+    <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+      <div data-aos="fade-right" class="order-2 md:order-1">
+        <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-4">The Designer</p>
+        <h1 class="font-display text-3xl md:text-5xl mb-6 leading-tight">About <span class="font-script italic">Ayesha</span></h1>
+        <p class="opacity-75 leading-relaxed mb-4">Ayesha began her journey in a small design studio, hand-sketching silhouettes that balanced heritage craftsmanship with modern minimalism. Over a decade later, Ayesha Atelier has grown into a house known for its considered tailoring and quiet luxury.</p>
+        <p class="opacity-75 leading-relaxed mb-4">Every collection begins with fabric — sourced responsibly, chosen for how it moves, drapes, and ages. From there, each piece is pattern-cut, fitted, and finished by hand in the atelier, before it ever reaches a client.</p>
+        <p class="opacity-75 leading-relaxed">"I design for the woman who doesn't need to shout to be noticed. Elegance, to me, is restraint." — Ayesha</p>
+      </div>
+      <div class="order-1 md:order-2 relative" data-aos="fade-left">
+        <img src="https://images.unsplash.com/photo-1733209484732-6b094322a89f?q=80&w=900&auto=format&fit=crop" class="w-full aspect-[4/5] object-cover" alt="Portrait of designer Ayesha in her atelier">
+        <div class="absolute -bottom-6 -left-6 hidden sm:block bg-gold text-noir px-6 py-4 font-display text-sm max-w-[180px]">
+          12+ Years of Bespoke Craftsmanship
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stitch max-w-7xl mx-auto"></div>
+
+  <!-- philosophy -->
+  <section class="max-w-5xl mx-auto px-5 md:px-8 py-20 md:py-28 text-center">
+    <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-4" data-aos="fade-up">Core Philosophy</p>
+    <h2 class="font-display text-3xl md:text-4xl mb-14" data-aos="fade-up">Mission, Vision &amp; Approach</h2>
+    <div class="grid md:grid-cols-3 gap-10 text-left">
+      <div data-aos="fade-up">
+        <h3 class="font-display text-lg mb-3 text-gold">Mission</h3>
+        <p class="text-sm opacity-70 leading-relaxed">To craft garments that outlast trends — pieces built on precise tailoring, honest materials, and enduring design.</p>
+      </div>
+      <div data-aos="fade-up" data-aos-delay="150">
+        <h3 class="font-display text-lg mb-3 text-gold">Vision</h3>
+        <p class="text-sm opacity-70 leading-relaxed">A world where luxury means longevity — where fewer, better pieces replace the churn of fast fashion.</p>
+      </div>
+      <div data-aos="fade-up" data-aos-delay="300">
+        <h3 class="font-display text-lg mb-3 text-gold">Design Approach</h3>
+        <p class="text-sm opacity-70 leading-relaxed">Every silhouette starts on the body, not the sketchpad — fit is never an afterthought at Ayesha Atelier.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- pillars -->
+  <section class="bg-sand dark:bg-[#1a1a1a] py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-5 md:px-8">
+      <div class="text-center mb-14" data-aos="fade-up">
+        <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-3">Pillars of Distinction</p>
+        <h2 class="font-display text-3xl md:text-4xl">What Sets Us Apart</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="pillar-card bg-ivory dark:bg-noir p-8 border border-gold/15 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-gold/10" data-aos="fade-up">
+          <i data-lucide="gem" class="w-6 h-6 text-gold mb-5"></i>
+          <h3 class="font-display text-lg mb-2">Premium Quality</h3>
+          <p class="text-sm opacity-70 leading-relaxed">Fine fabrics, reinforced seams, and finishing details inspected piece by piece before they leave the atelier.</p>
+        </div>
+        <div class="pillar-card bg-ivory dark:bg-noir p-8 border border-gold/15 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-gold/10" data-aos="fade-up" data-aos-delay="150">
+          <i data-lucide="sparkles" class="w-6 h-6 text-gold mb-5"></i>
+          <h3 class="font-display text-lg mb-2">Trendy Designs</h3>
+          <p class="text-sm opacity-70 leading-relaxed">Contemporary silhouettes shaped by runway research, reworked for how our clients actually live.</p>
+        </div>
+        <div class="pillar-card bg-ivory dark:bg-noir p-8 border border-gold/15 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-gold/10" data-aos="fade-up" data-aos-delay="300">
+          <i data-lucide="handshake" class="w-6 h-6 text-gold mb-5"></i>
+          <h3 class="font-display text-lg mb-2">Accessible Luxury</h3>
+          <p class="text-sm opacity-70 leading-relaxed">Made-to-order pricing that reflects true craftsmanship — without the traditional couture markup.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- ============ COLLECTION ============ -->
+<section id="page-collection" class="tab-page">
+  <section class="max-w-7xl mx-auto px-5 md:px-8 pt-16 pb-8">
+    <div class="text-center mb-10" data-aos="fade-up">
+      <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-3">Shop</p>
+      <h1 class="font-display text-3xl md:text-5xl">Latest Collection</h1>
+    </div>
+
+    <!-- filters -->
+    <div id="filterBar" class="flex flex-wrap justify-center gap-2 md:gap-3 mb-10">
+    </div>
+
+    <div class="flex items-center justify-between mb-6 text-xs tracking-widest uppercase opacity-60">
+      <span id="resultsCount"></span>
+      <button onclick="clearFilters()" class="hover:text-gold underline underline-offset-4">Reset</button>
+    </div>
+
+    <div id="shopGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 min-h-[300px]"></div>
+    <p id="noResults" class="hidden text-center opacity-60 py-20 font-script italic text-xl">No pieces match your search — try another filter.</p>
+  </section>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="page-contact" class="tab-page">
+  <section class="max-w-7xl mx-auto px-5 md:px-8 pt-16 pb-24">
+    <div class="text-center mb-14" data-aos="fade-up">
+      <p class="tracking-[0.3em] text-gold text-[11px] uppercase mb-3">Get in Touch</p>
+      <h1 class="font-display text-3xl md:text-5xl">Visit the Atelier</h1>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-12">
+      <!-- form -->
+      <form id="contactForm" class="lg:col-span-3 space-y-5" onsubmit="handleContact(event)" data-aos="fade-right" novalidate>
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label class="text-xs tracking-widest uppercase opacity-70 block mb-2">Full Name</label>
+            <input id="cName" required type="text" class="w-full bg-transparent border border-gold/30 px-4 py-3 text-sm outline-none focus:border-gold" placeholder="Your name">
+            <p class="err-msg text-[11px] text-red-500 mt-1 hidden">Please enter your name.</p>
+          </div>
+          <div>
+            <label class="text-xs tracking-widest uppercase opacity-70 block mb-2">Email Address</label>
+            <input id="cEmail" required type="email" class="w-full bg-transparent border border-gold/30 px-4 py-3 text-sm outline-none focus:border-gold" placeholder="you@example.com">
+            <p class="err-msg text-[11px] text-red-500 mt-1 hidden">Please enter a valid email.</p>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label class="text-xs tracking-widest uppercase opacity-70 block mb-2">Phone Number</label>
+            <input id="cPhone" required type="tel" class="w-full bg-transparent border border-gold/30 px-4 py-3 text-sm outline-none focus:border-gold" placeholder="0304 1446616">
+            <p class="err-msg text-[11px] text-red-500 mt-1 hidden">Please enter your phone number.</p>
+          </div>
+          <div>
+            <label class="text-xs tracking-widest uppercase opacity-70 block mb-2">Inquiry Type</label>
+            <select id="cType" required class="w-full bg-transparent border border-gold/30 px-4 py-3 text-sm outline-none focus:border-gold">
+              <option value="">Select an option</option>
+              <option>Custom Order</option>
+              <option>Sizing &amp; Fitting</option>
+              <option>Wholesale / Press</option>
+              <option>General Question</option>
+            </select>
+            <p class="err-msg text-[11px] text-red-500 mt-1 hidden">Please choose an inquiry type.</p>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs tracking-widest uppercase opacity-70 block mb-2">Message</label>
+          <textarea id="cMessage" required rows="5" class="w-full bg-transparent border border-gold/30 px-4 py-3 text-sm outline-none focus:border-gold" placeholder="Tell us about your inquiry…"></textarea>
+          <p class="err-msg text-[11px] text-red-500 mt-1 hidden">Please write a short message.</p>
+        </div>
+        <button type="submit" class="gold-btn px-8 py-3.5 text-xs tracking-[0.18em] uppercase">Send Message</button>
+        <p id="contactMsg" class="text-xs text-gold opacity-0 transition-opacity">Thank you — we'll respond within 1–2 business days.</p>
+      </form>
+
+      <!-- details -->
+      <div class="lg:col-span-2 space-y-6" data-aos="fade-left">
+        <button onclick="copyText('0304 1446616', this)" class="pop w-full flex items-center gap-4 border border-gold/20 px-5 py-4 text-left hover:border-gold transition group">
+          <i data-lucide="phone" class="w-5 h-5 text-gold shrink-0"></i>
+          <span class="flex-1">
+            <span class="block text-xs uppercase tracking-widest opacity-60">Call / WhatsApp</span>
+            <span class="text-sm">0304 1446616</span>
+          </span>
+          <i data-lucide="copy" class="w-4 h-4 opacity-40 group-hover:opacity-100"></i>
+        </button>
+        <button onclick="copyText('studio@ayesha-atelier.com', this)" class="pop w-full flex items-center gap-4 border border-gold/20 px-5 py-4 text-left hover:border-gold transition group">
+          <i data-lucide="mail" class="w-5 h-5 text-gold shrink-0"></i>
+          <span class="flex-1">
+            <span class="block text-xs uppercase tracking-widest opacity-60">Email</span>
+            <span class="text-sm">studio@ayesha-atelier.com</span>
+          </span>
+          <i data-lucide="copy" class="w-4 h-4 opacity-40 group-hover:opacity-100"></i>
+        </button>
+        <button onclick="copyText('12 Liberty Boulevard, Gulberg, Lahore', this)" class="pop w-full flex items-center gap-4 border border-gold/20 px-5 py-4 text-left hover:border-gold transition group">
+          <i data-lucide="map-pin" class="w-5 h-5 text-gold shrink-0"></i>
+          <span class="flex-1">
+            <span class="block text-xs uppercase tracking-widest opacity-60">Studio Address</span>
+            <span class="text-sm">12 Liberty Boulevard, Gulberg, Lahore</span>
+          </span>
+          <i data-lucide="copy" class="w-4 h-4 opacity-40 group-hover:opacity-100"></i>
+        </button>
+        <div class="flex items-start gap-4 border border-gold/20 px-5 py-4">
+          <i data-lucide="clock" class="w-5 h-5 text-gold shrink-0 mt-0.5"></i>
+          <span class="text-sm opacity-80">Tue – Sun, 11:00 AM – 7:00 PM <br><span class="opacity-60">Closed Mondays</span></span>
+        </div>
+
+        <div class="aspect-video w-full overflow-hidden border border-gold/20 grayscale hover:grayscale-0 transition duration-500">
+          <iframe title="Studio location map" src="https://www.google.com/maps?q=Gulberg,Lahore&output=embed" class="w-full h-full border-0" loading="lazy"></iframe>
+        </div>
+
+        <div class="flex gap-4 pt-2">
+          <a href="https://instagram.com/urfav_ayeshy" target="_blank" rel="noopener" aria-label="Instagram" class="social-btn w-10 h-10 flex items-center justify-center border border-gold/30 hover:border-gold hover:shadow-lg hover:shadow-gold/20 transition"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+          <a href="https://tiktok.com/@_ayeshaa06" target="_blank" rel="noopener" aria-label="TikTok" class="social-btn w-10 h-10 flex items-center justify-center border border-gold/30 hover:border-gold hover:shadow-lg hover:shadow-gold/20 transition"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg></a>
+          <a href="#" aria-label="Pinterest" class="social-btn w-10 h-10 flex items-center justify-center border border-gold/30 hover:border-gold hover:shadow-lg hover:shadow-gold/20 transition"><i data-lucide="pin" class="w-4 h-4"></i></a>
+          <a href="#" aria-label="Facebook" class="social-btn w-10 h-10 flex items-center justify-center border border-gold/30 hover:border-gold hover:shadow-lg hover:shadow-gold/20 transition"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-gold/15 mt-8">
+  <div class="max-w-7xl mx-auto px-5 md:px-8 py-14 grid md:grid-cols-4 gap-10">
+    <div>
+      <span class="font-display text-xl tracking-widest">AYESHA</span>
+      <p class="text-xs opacity-60 mt-4 leading-relaxed max-w-[220px]">Bespoke fashion, handcrafted with intention — designed by Ayesha since 2013.</p>
+    </div>
+    <div>
+      <h4 class="text-xs tracking-widest uppercase mb-4 text-gold">Shop</h4>
+      <ul class="space-y-2 text-sm opacity-70">
+        <li><button onclick="goToCategory('Women')" class="hover:text-gold">Women</button></li>
+        <li><button onclick="goToCategory('New Arrivals')" class="hover:text-gold">New Arrivals</button></li>
+        <li><button onclick="goToCategory('Sale')" class="hover:text-gold">Sale</button></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-xs tracking-widest uppercase mb-4 text-gold">Studio</h4>
+      <ul class="space-y-2 text-sm opacity-70">
+        <li><button onclick="goTo('about')" class="hover:text-gold">About Ayesha</button></li>
+        <li><button onclick="goTo('contact')" class="hover:text-gold">Contact</button></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-xs tracking-widest uppercase mb-4 text-gold">Follow</h4>
+      <div class="flex flex-col gap-3">
+        <a href="https://instagram.com/urfav_ayeshy" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-gold text-sm opacity-80"><i data-lucide="instagram" class="w-4 h-4"></i> @urfav_ayeshy</a>
+        <a href="https://tiktok.com/@_ayeshaa06" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-gold text-sm opacity-80"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg> @_ayeshaa06</a>
+        <div class="flex gap-3 pt-1">
+          <a href="#" class="hover:text-gold"><i data-lucide="pin" class="w-4 h-4"></i></a>
+          <a href="#" class="hover:text-gold"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stitch max-w-7xl mx-auto"></div>
+  <p class="text-center text-[11px] opacity-50 py-6 tracking-widest uppercase">© 2026 Ayesha Atelier. All rights reserved.</p>
+</footer>
+
+<!-- ============ CART DRAWER ============ -->
+<div id="cartOverlay" class="overlay fixed inset-0 bg-noir/50 z-[60]" onclick="closeCart()"></div>
+<aside id="cartDrawer" class="drawer fixed top-0 right-0 h-full w-full sm:w-[420px] bg-ivory dark:bg-obsidian z-[70] flex flex-col shadow-2xl">
+  <div class="flex items-center justify-between px-6 py-5 border-b border-gold/15">
+    <h3 class="font-display text-xl">Your Bag</h3>
+    <button onclick="closeCart()"><i data-lucide="x" class="w-5 h-5"></i></button>
+  </div>
+  <div id="cartItems" class="flex-1 overflow-y-auto px-6 py-4 space-y-5"></div>
+  <div id="cartEmpty" class="hidden flex-1 flex flex-col items-center justify-center text-center px-6 opacity-60">
+    <i data-lucide="shopping-bag" class="w-8 h-8 mb-4"></i>
+    <p class="font-script italic text-lg">Your bag is empty</p>
+    <button onclick="closeCart(); goTo('collection');" class="mt-4 text-xs tracking-widest uppercase underline underline-offset-4">Continue Shopping</button>
+  </div>
+  <div class="border-t border-gold/15 px-6 py-6 space-y-4">
+    <div class="flex justify-between text-sm">
+      <span class="opacity-70">Subtotal</span>
+      <span id="cartSubtotal" class="font-display text-lg">$0</span>
+    </div>
+    <button onclick="checkoutAlert()" class="gold-btn w-full py-3.5 text-xs tracking-[0.18em] uppercase">Checkout</button>
+  </div>
+</aside>
+
+<!-- ============ QUICK VIEW MODAL ============ -->
+<div id="quickView" class="modal-wrap fixed inset-0 z-[80] hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-noir/60" onclick="closeQuickView()"></div>
+  <div class="modal-panel relative bg-ivory dark:bg-obsidian max-w-3xl w-full max-h-[88vh] overflow-y-auto grid md:grid-cols-2">
+    <button onclick="closeQuickView()" class="absolute top-4 right-4 z-10 bg-ivory dark:bg-obsidian rounded-full p-1.5 shadow"><i data-lucide="x" class="w-4 h-4"></i></button>
+    <div class="relative aspect-[4/5] md:aspect-auto">
+      <img id="qvImg" src="" alt="" class="w-full h-full object-cover">
+    </div>
+    <div class="p-6 md:p-8 flex flex-col">
+      <p id="qvCategory" class="text-xs tracking-widest uppercase text-gold mb-2"></p>
+      <h3 id="qvTitle" class="font-display text-2xl mb-2"></h3>
+      <div id="qvRating" class="text-gold text-sm mb-4"></div>
+      <div class="flex items-baseline gap-3 mb-5">
+        <span id="qvPrice" class="font-display text-xl"></span>
+        <span id="qvOldPrice" class="text-sm line-through opacity-50"></span>
+      </div>
+      <p id="qvDesc" class="text-sm opacity-70 leading-relaxed mb-6"></p>
+
+      <div class="mb-5">
+        <p class="text-xs tracking-widest uppercase opacity-60 mb-2">Color</p>
+        <div id="qvSwatches" class="flex gap-2"></div>
+      </div>
+      <div class="mb-6">
+        <p class="text-xs tracking-widest uppercase opacity-60 mb-2">Size</p>
+        <div id="qvSizes" class="flex gap-2"></div>
+      </div>
+
+      <div class="mt-auto flex gap-3">
+        <button id="qvAddBtn" onclick="addToCartFromQV()" class="gold-btn flex-1 py-3.5 text-xs tracking-[0.18em] uppercase">Add to Cart</button>
+        <button id="qvWishBtn" onclick="toggleWishFromQV()" class="outline-btn w-12 flex items-center justify-center"><i data-lucide="heart" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- toast -->
+<div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] bg-obsidian text-ivory px-6 py-3 text-xs tracking-widest uppercase shadow-xl"></div>
+
+<script>
+/* ============================================================
+   DATA
+============================================================ */
+const PRODUCTS = [
+  { id:1, title:"Ivory Embroidered Formal", category:"Formal", tags:["Women","Formal","Dresses"], price:340, oldPrice:420, rating:5,
+    img1:"https://images.unsplash.com/photo-1733470381436-bb5a2a441708?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1701252072712-e939599623f2?q=80&w=800&auto=format&fit=crop",
+    desc:"A hand-embroidered formal shirt and gharara set, cut for a fluid, elegant silhouette." },
+  { id:2, title:"Champagne Zari Kurta Set", category:"Formal", tags:["Women","Formal"], price:265, oldPrice:null, rating:4,
+    img1:"https://images.unsplash.com/photo-1733209589578-97136bee7d7a?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1733209587923-77ff33202f7c?q=80&w=800&auto=format&fit=crop",
+    desc:"A structured kurta with zari detailing and a tailored trouser, in soft champagne tones." },
+  { id:3, title:"Noir Chiffon Anarkali", category:"New Arrivals", tags:["Women","New Arrivals","Dresses"], price:210, oldPrice:null, rating:5,
+    img1:"https://images.unsplash.com/photo-1733470381591-c5dfb9df3c3d?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1707576618343-26a1b377ca7a?q=80&w=800&auto=format&fit=crop",
+    desc:"A flowing Anarkali in matte chiffon, designed to move gracefully with every step." },
+  { id:4, title:"Sand Lawn Co-ord Set", category:"Casual", tags:["Women","Casual"], price:180, oldPrice:230, rating:4,
+    img1:"https://images.unsplash.com/photo-1733209589780-ece842d0dcf8?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1701252072712-e939599623f2?q=80&w=800&auto=format&fit=crop",
+    desc:"Breathable lawn kurta and trouser set in warm sand, finished with delicate hand-embroidery." },
+  { id:5, title:"Gold Thread Clutch", category:"Accessories", tags:["Accessories"], price:95, oldPrice:null, rating:5,
+    img1:"https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=800&auto=format&fit=crop",
+    desc:"Hand-embroidered gold thread clutch on raw silk, with a detachable chain strap." },
+  { id:6, title:"Obsidian Tuxedo Set", category:"Formal", tags:["Men","Formal"], price:410, oldPrice:480, rating:5,
+    img1:"https://images.unsplash.com/photo-1594938298603-c8148c4dae35?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop",
+    desc:"A sharply tailored two-piece tuxedo in midnight wool, satin lapel finish." },
+  { id:7, title:"Rose Chiffon Maxi", category:"New Arrivals", tags:["Women","New Arrivals","Dresses","Sale"], price:150, oldPrice:220, rating:4,
+    img1:"https://images.unsplash.com/photo-1707576618343-26a1b377ca7a?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1733470381571-c3d082e68457?q=80&w=800&auto=format&fit=crop",
+    desc:"Layered chiffon maxi dress with a soft rose undertone, light enough to travel with." },
+  { id:8, title:"Beige Embroidered Shawl Set", category:"Casual", tags:["Women","Casual","Sale"], price:250, oldPrice:310, rating:4,
+    img1:"https://images.unsplash.com/photo-1733209587923-77ff33202f7c?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1733209589578-97136bee7d7a?q=80&w=800&auto=format&fit=crop",
+    desc:"A timeless three-piece with a hand-finished embroidered shawl in warm beige." },
+  { id:9, title:"Charcoal Wool Trousers", category:"Formal", tags:["Men","Formal"], price:140, oldPrice:null, rating:4,
+    img1:"https://images.unsplash.com/photo-1473966968600-fa801b869a1a?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?q=80&w=800&auto=format&fit=crop",
+    desc:"High-waisted, wide-leg trousers in brushed wool, tailored for a sharp drape." },
+  { id:10, title:"Pearl Drop Earrings", category:"Accessories", tags:["Accessories","Sale"], price:65, oldPrice:85, rating:5,
+    img1:"https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1611652022419-a9419f74343d?q=80&w=800&auto=format&fit=crop",
+    desc:"Freshwater pearls set in brushed gold vermeil, finished by hand in our studio." },
+  { id:11, title:"Emerald Velvet Angrakha", category:"Formal", tags:["Women","Formal","New Arrivals"], price:295, oldPrice:null, rating:5,
+    img1:"https://images.unsplash.com/photo-1701252072712-e939599623f2?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1733470381436-bb5a2a441708?q=80&w=800&auto=format&fit=crop",
+    desc:"A jewel-tone velvet angrakha with hand-finished detailing, cut for an evening silhouette." },
+  { id:12, title:"Ivory Cotton Shirt", category:"Casual", tags:["Men","Casual"], price:88, oldPrice:null, rating:4,
+    img1:"https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=800&auto=format&fit=crop",
+    img2:"https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=800&auto=format&fit=crop",
+    desc:"A crisp, breathable cotton shirt with mother-of-pearl buttons and a relaxed collar." },
+];
+
+const COLORS = ["#1A1A1A","#C5A059","#F4EFEA","#7A2E2E","#3A4A3A"];
+const SIZES = ["XS","S","M","L","XL"];
+
+let cart = [];        // {id, size, color, qty}
+let wishlist = [];    // ids
+let currentFilter = "All";
+let currentSearch = "";
+let currentQV = null; // product currently in quick view {product, size, color}
+
+/* ============================================================
+   INIT
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  AOS.init({ duration: 700, once: true, offset: 60 });
+  initTheme();
+  renderFeatured();
+  renderFilters();
+  renderShopGrid();
+  initHeroSwiper();
+  initTestiSwiper();
+  initHeaderScroll();
+});
+
+/* ============================================================
+   NAVIGATION (SPA tabs)
+============================================================ */
+function goTo(page){
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('[data-page]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.page === page);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  lucide.createIcons();
+}
+
+function scrollToShop(){ setTimeout(()=>{ document.getElementById('page-collection').scrollIntoView({behavior:'smooth'}); }, 50); }
+
+function goToCategory(cat){
+  goTo('collection');
+  currentFilter = cat;
+  renderFilters();
+  renderShopGrid();
+}
+
+/* header glass shrink on scroll */
+function initHeaderScroll(){
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    if(window.scrollY > 40){ header.classList.add('shadow-md'); } else { header.classList.remove('shadow-md'); }
+  });
+}
+
+/* mobile menu */
+function toggleMobileMenu(){
+  document.getElementById('mobileMenu').classList.toggle('hidden');
+}
+
+/* search bar */
+function toggleSearch(){
+  const bar = document.getElementById('searchBar');
+  bar.classList.toggle('hidden');
+  if(!bar.classList.contains('hidden')) document.getElementById('globalSearch').focus();
+}
+function liveSearch(val){
+  currentSearch = val.trim().toLowerCase();
+  if(val.trim().length){
+    goTo('collection');
+  }
+  renderShopGrid();
+}
+
+/* ============================================================
+   THEME (dark/light with localStorage)
+============================================================ */
+function initTheme(){
+  const saved = localStorage.getItem('ayesha-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved ? saved === 'dark' : prefersDark;
+  document.documentElement.classList.toggle('dark', isDark);
+  syncThemeIcon(isDark);
+}
+function toggleTheme(){
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('ayesha-theme', isDark ? 'dark' : 'light');
+  syncThemeIcon(isDark);
+}
+function syncThemeIcon(isDark){
+  document.getElementById('iconSun').classList.toggle('hidden', !isDark);
+  document.getElementById('iconMoon').classList.toggle('hidden', isDark);
+}
+
+/* ============================================================
+   SWIPERS
+============================================================ */
+function initHeroSwiper(){
+  new Swiper('.heroSwiper', {
+    loop: true,
+    autoplay: { delay: 5000, disableOnInteraction: false },
+    effect: 'fade',
+    fadeEffect: { crossFade: true },
+    pagination: { el: '.heroSwiperPag', clickable: true, bulletClass: 'inline-block w-2 h-2 rounded-full bg-white/50 mx-1 cursor-pointer', bulletActiveClass: '!bg-gold' },
+  });
+}
+function initTestiSwiper(){
+  new Swiper('.testiSwiper', {
+    loop: true,
+    autoplay: { delay: 6000 },
+    effect: 'fade',
+    fadeEffect: { crossFade: true },
+  });
+}
+
+/* ============================================================
+   PRODUCT CARD RENDERING
+============================================================ */
+function starString(n){
+  return '★★★★★☆☆☆☆☆'.slice(5-n, 10-n);
+}
+
+function productCardHTML(p){
+  const isWished = wishlist.includes(p.id);
+  return `
+  <div class="prod-card group" data-id="${p.id}">
+    <div class="prod-img-wrap bg-sand dark:bg-[#1e1e1e]">
+      <img class="primary" src="${p.img1}" alt="${p.title}">
+      <img class="secondary" src="${p.img2}" alt="${p.title} alternate view">
+      ${p.oldPrice ? `<span class="absolute top-3 left-3 bg-gold text-noir text-[10px] tracking-widest uppercase px-2 py-1">Sale</span>` : ''}
+      <button onclick="quickToggleWish(${p.id}, event)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-ivory/90 dark:bg-obsidian/90 flex items-center justify-center hover:text-gold transition">
+        <i data-lucide="heart" class="w-4 h-4 ${isWished ? 'fill-current text-gold' : ''}"></i>
+      </button>
+      <div class="action-bar absolute bottom-0 left-0 right-0 bg-ivory/95 dark:bg-obsidian/95 flex divide-x divide-gold/20 text-[11px] tracking-widest uppercase">
+        <button onclick="openQuickView(${p.id})" class="flex-1 py-3 hover:text-gold transition">Quick View</button>
+        <button onclick="quickAddToCart(${p.id})" class="flex-1 py-3 hover:text-gold transition">Add to Cart</button>
+      </div>
+    </div>
+    <div class="pt-3">
+      <p class="text-[10px] tracking-widest uppercase opacity-50 mb-1">${p.category}</p>
+      <h3 class="font-display text-[15px] leading-snug mb-1 cursor-pointer" onclick="openQuickView(${p.id})">${p.title}</h3>
+      <div class="text-gold text-xs mb-1">${starString(p.rating)}</div>
+      <div class="flex items-baseline gap-2">
+        <span class="font-display text-sm">$${p.price}</span>
+        ${p.oldPrice ? `<span class="text-xs line-through opacity-40">$${p.oldPrice}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFeatured(){
+  const featured = PRODUCTS.slice(0,4);
+  document.getElementById('featuredGrid').innerHTML = featured.map(productCardHTML).join('');
+  lucide.createIcons();
+}
+
+/* ============================================================
+   COLLECTION / FILTER / SEARCH
+============================================================ */
+const FILTERS = ["All","Women","Men","New Arrivals","Dresses","Casual","Formal","Sale"];
+
+function renderFilters(){
+  document.getElementById('filterBar').innerHTML = FILTERS.map(f => `
+    <button onclick="setFilter('${f}')"
+      class="filter-btn px-5 py-2 text-[11px] tracking-widest uppercase border transition
+      ${currentFilter === f ? 'bg-obsidian text-ivory dark:bg-gold dark:text-noir border-obsidian dark:border-gold' : 'border-gold/30 hover:border-gold'}">
+      ${f}
+    </button>`).join('');
+}
+function setFilter(f){
+  currentFilter = f;
+  renderFilters();
+  renderShopGrid();
+}
+function clearFilters(){
+  currentFilter = "All"; currentSearch = "";
+  document.getElementById('globalSearch').value = "";
+  renderFilters();
+  renderShopGrid();
+}
+
+function renderShopGrid(){
+  let list = PRODUCTS.filter(p => {
+    const matchesFilter = currentFilter === "All" || p.tags.includes(currentFilter);
+    const matchesSearch = !currentSearch || p.title.toLowerCase().includes(currentSearch) || p.category.toLowerCase().includes(currentSearch);
+    return matchesFilter && matchesSearch;
+  });
+  const grid = document.getElementById('shopGrid');
+  const noRes = document.getElementById('noResults');
+  document.getElementById('resultsCount').textContent = `${list.length} piece${list.length !== 1 ? 's' : ''}`;
+  if(list.length === 0){
+    grid.innerHTML = ''; noRes.classList.remove('hidden');
+  } else {
+    noRes.classList.add('hidden');
+    grid.innerHTML = list.map(productCardHTML).join('');
+  }
+  lucide.createIcons();
+}
+
+/* ============================================================
+   WISHLIST
+============================================================ */
+function quickToggleWish(id, e){
+  if(e) e.stopPropagation();
+  toggleWish(id);
+  renderShopGrid();
+  renderFeatured();
+}
+function toggleWish(id){
+  const idx = wishlist.indexOf(id);
+  if(idx > -1){ wishlist.splice(idx,1); } else { wishlist.push(id); showToast('Added to wishlist'); }
+  updateWishBadge();
+}
+function updateWishBadge(){
+  const badge = document.getElementById('wishBadge');
+  badge.textContent = wishlist.length;
+  badge.classList.toggle('hidden', wishlist.length === 0);
+}
+
+/* ============================================================
+   QUICK VIEW MODAL
+============================================================ */
+function openQuickView(id){
+  const p = PRODUCTS.find(x => x.id === id);
+  currentQV = { product: p, size: 'M', color: COLORS[0] };
+  document.getElementById('qvImg').src = p.img1;
+  document.getElementById('qvImg').alt = p.title;
+  document.getElementById('qvCategory').textContent = p.category;
+  document.getElementById('qvTitle').textContent = p.title;
+  document.getElementById('qvRating').textContent = starString(p.rating);
+  document.getElementById('qvPrice').textContent = '$' + p.price;
+  document.getElementById('qvOldPrice').textContent = p.oldPrice ? '$' + p.oldPrice : '';
+  document.getElementById('qvDesc').textContent = p.desc;
+
+  document.getElementById('qvSwatches').innerHTML = COLORS.map((c,i) => `
+    <button class="swatch ${i===0?'selected':''}" style="background:${c}" onclick="selectSwatch(this,'${c}')" aria-label="Select color"></button>`).join('');
+
+  document.getElementById('qvSizes').innerHTML = SIZES.map(s => `
+    <button class="size-chip px-3 py-1.5 text-xs ${s==='M'?'selected':''}" onclick="selectSize(this,'${s}')">${s}</button>`).join('');
+
+  const wished = wishlist.includes(p.id);
+  document.getElementById('qvWishBtn').innerHTML = `<i data-lucide="heart" class="w-4 h-4 ${wished ? 'fill-current text-gold' : ''}"></i>`;
+
+  const modal = document.getElementById('quickView');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  requestAnimationFrame(()=> modal.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+function closeQuickView(){
+  const modal = document.getElementById('quickView');
+  modal.classList.remove('open');
+  setTimeout(()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+  document.body.style.overflow = '';
+}
+function selectSwatch(el, color){
+  document.querySelectorAll('#qvSwatches .swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  currentQV.color = color;
+}
+function selectSize(el, size){
+  document.querySelectorAll('#qvSizes .size-chip').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  currentQV.size = size;
+}
+function addToCartFromQV(){
+  addToCart(currentQV.product.id, currentQV.size, currentQV.color);
+  closeQuickView();
+}
+function toggleWishFromQV(){
+  toggleWish(currentQV.product.id);
+  const wished = wishlist.includes(currentQV.product.id);
+  document.getElementById('qvWishBtn').innerHTML = `<i data-lucide="heart" class="w-4 h-4 ${wished ? 'fill-current text-gold' : ''}"></i>`;
+  lucide.createIcons();
+  renderShopGrid(); renderFeatured();
+}
+
+/* ============================================================
+   CART
+============================================================ */
+function quickAddToCart(id){ addToCart(id, 'M', COLORS[0]); }
+
+function addToCart(id, size, color){
+  const existing = cart.find(c => c.id === id && c.size === size && c.color === color);
+  if(existing){ existing.qty++; } else { cart.push({ id, size, color, qty: 1 }); }
+  updateCartBadge();
+  renderCart();
+  showToast('Added to bag');
+}
+function updateCartBadge(){
+  const totalQty = cart.reduce((s,c)=>s+c.qty,0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = totalQty;
+  badge.classList.toggle('hidden', totalQty === 0);
+}
+function renderCart(){
+  const container = document.getElementById('cartItems');
+  const empty = document.getElementById('cartEmpty');
+  if(cart.length === 0){
+    container.innerHTML = ''; empty.classList.remove('hidden'); container.classList.add('hidden');
+  } else {
+    empty.classList.add('hidden'); container.classList.remove('hidden');
+    container.innerHTML = cart.map((c, idx) => {
+      const p = PRODUCTS.find(x => x.id === c.id);
+      return `
+      <div class="flex gap-4">
+        <img src="${p.img1}" class="w-20 h-24 object-cover shrink-0" alt="${p.title}">
+        <div class="flex-1">
+          <div class="flex justify-between items-start gap-2">
+            <h4 class="font-display text-sm leading-snug">${p.title}</h4>
+            <button onclick="removeFromCart(${idx})" class="opacity-50 hover:opacity-100 shrink-0"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <p class="text-[11px] opacity-60 mt-1">Size ${c.size} · <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${c.color};vertical-align:middle;"></span></p>
+          <div class="flex items-center justify-between mt-3">
+            <div class="flex items-center border border-gold/30">
+              <button onclick="changeQty(${idx},-1)" class="w-7 h-7 flex items-center justify-center hover:text-gold">−</button>
+              <span class="w-7 text-center text-sm">${c.qty}</span>
+              <button onclick="changeQty(${idx},1)" class="w-7 h-7 flex items-center justify-center hover:text-gold">+</button>
+            </div>
+            <span class="font-display text-sm">$${p.price * c.qty}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  const subtotal = cart.reduce((sum,c) => sum + PRODUCTS.find(p=>p.id===c.id).price * c.qty, 0);
+  document.getElementById('cartSubtotal').textContent = '$' + subtotal;
+  lucide.createIcons();
+}
+function changeQty(idx, delta){
+  cart[idx].qty += delta;
+  if(cart[idx].qty <= 0) cart.splice(idx,1);
+  updateCartBadge(); renderCart();
+}
+function removeFromCart(idx){
+  cart.splice(idx,1);
+  updateCartBadge(); renderCart();
+}
+function openCart(){
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCart(){
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function checkoutAlert(){
+  if(cart.length === 0){ showToast('Your bag is empty'); return; }
+  showToast('Redirecting to checkout…');
+}
+
+/* ============================================================
+   FORMS
+============================================================ */
+function handleNewsletter(e){
+  e.preventDefault();
+  const msg = document.getElementById('newsletterMsg');
+  msg.style.opacity = 1;
+  e.target.reset();
+  setTimeout(()=> msg.style.opacity = 0, 4000);
+}
+
+function handleContact(e){
+  e.preventDefault();
+  let valid = true;
+  const fields = [
+    { el: document.getElementById('cName'), test: v => v.trim().length > 1 },
+    { el: document.getElementById('cEmail'), test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+    { el: document.getElementById('cPhone'), test: v => v.trim().length > 6 },
+    { el: document.getElementById('cType'), test: v => v !== '' },
+    { el: document.getElementById('cMessage'), test: v => v.trim().length > 5 },
+  ];
+  fields.forEach(f => {
+    const ok = f.test(f.el.value);
+    const errEl = f.el.parentElement.querySelector('.err-msg');
+    if(!ok){ valid = false; f.el.classList.add('border-red-500'); if(errEl) errEl.classList.remove('hidden'); }
+    else { f.el.classList.remove('border-red-500'); if(errEl) errEl.classList.add('hidden'); }
+  });
+  if(!valid) return;
+  const msg = document.getElementById('contactMsg');
+  msg.style.opacity = 1;
+  e.target.reset();
+  setTimeout(()=> msg.style.opacity = 0, 5000);
+}
+
+/* click-to-copy */
+function copyText(text, btn){
+  navigator.clipboard.writeText(text).then(()=>{
+    showToast('Copied: ' + text);
+  }).catch(()=>{ showToast(text); });
+}
+
+/* ============================================================
+   TOAST
+============================================================ */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2400);
+}
+</script>
+</body>
+</html>

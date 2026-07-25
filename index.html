@@ -172,6 +172,23 @@
   }
   .swatch:hover, .size-chip:hover{ transform: scale(1.15); }
 </style>
+<!-- Firebase (stores orders so the dashboard can show them live) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  // PASTE your Firebase config here (from Firebase Console > Project Settings > Your apps)
+  const firebaseConfig = {
+    apiKey: "AIzaSyC5HhPTZ-oxNUvQ-VCYGKbZFn2h5DYfi5A",
+    authDomain: "ayesha-atelier.firebaseapp.com",
+    projectId: "ayesha-atelier",
+    storageBucket: "ayesha-atelier.firebasestorage.app",
+    messagingSenderId: "935813818578",
+    appId: "1:935813818578:web:07279cb3253112d4b1250b"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
 </head>
 <body class="font-body">
 
@@ -1270,6 +1287,26 @@ async function submitOrder(e){
   } catch(err){
     // Even if the first-time activation email hasn't been clicked yet, still confirm the order to the customer.
     console.warn('Order email could not be sent yet — check inbox for FormSubmit activation email.', err);
+  }
+
+  try{
+    await db.collection('orders').add({
+      orderId: orderId,
+      customerName: orderPayload["Customer Name"],
+      phone: orderPayload["Phone"],
+      address: orderPayload["Address"],
+      city: orderPayload["City"],
+      paymentMethod: "Cash on Delivery",
+      items: cart.map(c => {
+        const p = PRODUCTS.find(x => x.id === c.id);
+        return { title: p.title, size: c.size, color: c.color, qty: c.qty, price: p.price };
+      }),
+      total: subtotal,
+      status: "Processing",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(err){
+    console.warn('Order could not be saved to dashboard — check Firebase config.', err);
   }
 
   document.getElementById('successOrderId').textContent = orderId;

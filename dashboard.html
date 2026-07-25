@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayesha Atelier — Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          ivory: '#FAF9F6', noir:'#121212', gold:'#C5A059', goldLight:'#D4AF37',
+          obsidian:'#1A1A1A', sand:'#F4EFEA',
+        },
+        fontFamily: { display: ['"Playfair Display"','serif'], body: ['"Inter"','sans-serif'] },
+      },
+    },
+  }
+</script>
+
+<style>
+  body{ font-family:'Inter', sans-serif; background:#FAF9F6; color:#1A1A1A; }
+  html.dark body{ background:#121212; color:#FAF9F6; }
+  .font-display{ font-family:'Playfair Display', serif; }
+  .card{ background:#FFFFFF; border:1px solid rgba(197,160,89,.15); }
+  html.dark .card{ background:#1A1A1A; border-color: rgba(197,160,89,.15); }
+  .stitch{ height:1px; background-image: repeating-linear-gradient(90deg, #C5A059 0 6px, transparent 6px 12px); opacity:.5; }
+  .pop{ transition: transform .25s ease, box-shadow .25s ease; }
+  .pop:hover{ transform: translateY(-2px) scale(1.015); box-shadow: 0 12px 26px -14px rgba(197,160,89,.5); }
+  ::-webkit-scrollbar{ width:8px; height:8px; } ::-webkit-scrollbar-thumb{ background: rgba(197,160,89,.5); border-radius:4px; }
+  .badge-dot{ width:7px; height:7px; border-radius:999px; display:inline-block; }
+  .nav-item.active{ background: rgba(197,160,89,.12); color:#C5A059; border-right: 2px solid #C5A059; }
+  .tab-panel{ display:none; } .tab-panel.active{ display:block; animation: fadeIn .35s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+</style>
+<!-- Firebase (reads live orders placed on the store) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  // PASTE the SAME Firebase config you used in index.html
+  const firebaseConfig = {
+    apiKey: "AIzaSyC5HhPTZ-oxNUvQ-VCYGKbZFn2h5DYfi5A",
+    authDomain: "ayesha-atelier.firebaseapp.com",
+    projectId: "ayesha-atelier",
+    storageBucket: "ayesha-atelier.firebasestorage.app",
+    messagingSenderId: "935813818578",
+    appId: "1:935813818578:web:07279cb3253112d4b1250b"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+</head>
+<body class="font-body">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="hidden md:flex md:flex-col w-60 shrink-0 border-r border-gold/15 bg-white dark:bg-obsidian">
+    <div class="h-20 flex items-center px-6 border-b border-gold/15">
+      <span class="font-display text-xl tracking-widest">AYESHA</span>
+      <span class="ml-2 text-[10px] tracking-widest uppercase text-gold">Admin</span>
+    </div>
+    <nav class="flex-1 py-6 flex flex-col gap-1">
+      <button onclick="showTab('overview', this)" class="nav-item active flex items-center gap-3 px-6 py-3 text-sm text-left"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview</button>
+      <button onclick="showTab('orders', this)" class="nav-item flex items-center gap-3 px-6 py-3 text-sm text-left"><i data-lucide="shopping-bag" class="w-4 h-4"></i> Orders</button>
+      <button onclick="showTab('products', this)" class="nav-item flex items-center gap-3 px-6 py-3 text-sm text-left"><i data-lucide="shirt" class="w-4 h-4"></i> Products</button>
+      <button onclick="showTab('customers', this)" class="nav-item flex items-center gap-3 px-6 py-3 text-sm text-left"><i data-lucide="users" class="w-4 h-4"></i> Customers</button>
+      <button onclick="showTab('messages', this)" class="nav-item flex items-center gap-3 px-6 py-3 text-sm text-left"><i data-lucide="mail" class="w-4 h-4"></i> Messages</button>
+    </nav>
+    <div class="p-6 border-t border-gold/15">
+      <div class="stitch mb-4"></div>
+      <p class="text-[11px] opacity-60">Logged in as</p>
+      <p class="text-sm font-display">Ayesha Atelier</p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 min-w-0">
+    <!-- topbar -->
+    <header class="h-20 border-b border-gold/15 flex items-center justify-between px-5 md:px-8 bg-white/80 dark:bg-obsidian/80 backdrop-blur sticky top-0 z-10">
+      <div>
+        <h1 class="font-display text-xl md:text-2xl">Dashboard</h1>
+        <p class="text-xs opacity-60">Welcome back — here's how the atelier is performing.</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="toggleTheme()" class="w-9 h-9 flex items-center justify-center border border-gold/25 rounded-full pop"><i data-lucide="moon" id="themeIcon" class="w-4 h-4"></i></button>
+        <div class="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center font-display text-sm text-gold">A</div>
+      </div>
+    </header>
+
+    <main class="p-5 md:p-8 space-y-8">
+
+      <!-- ===== OVERVIEW ===== -->
+      <section id="tab-overview" class="tab-panel active space-y-8">
+
+        <!-- stat cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          <div class="card pop p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase tracking-widest opacity-60">Revenue</span>
+              <i data-lucide="banknote" class="w-4 h-4 text-gold"></i>
+            </div>
+            <p class="font-display text-2xl md:text-3xl">$18,420</p>
+            <p class="text-xs text-emerald-600 mt-1">↑ 12.4% this month</p>
+          </div>
+          <div class="card pop p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase tracking-widest opacity-60">Orders</span>
+              <i data-lucide="shopping-bag" class="w-4 h-4 text-gold"></i>
+            </div>
+            <p class="font-display text-2xl md:text-3xl">246</p>
+            <p class="text-xs text-emerald-600 mt-1">↑ 8 today</p>
+          </div>
+          <div class="card pop p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase tracking-widest opacity-60">Customers</span>
+              <i data-lucide="users" class="w-4 h-4 text-gold"></i>
+            </div>
+            <p class="font-display text-2xl md:text-3xl">1,032</p>
+            <p class="text-xs opacity-60 mt-1">+37 new this week</p>
+          </div>
+          <div class="card pop p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs uppercase tracking-widest opacity-60">Wishlist Adds</span>
+              <i data-lucide="heart" class="w-4 h-4 text-gold"></i>
+            </div>
+            <p class="font-display text-2xl md:text-3xl">589</p>
+            <p class="text-xs opacity-60 mt-1">Across all pieces</p>
+          </div>
+        </div>
+
+        <!-- chart + top products -->
+        <div class="grid lg:grid-cols-3 gap-5">
+          <div class="card pop p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="font-display text-lg">Revenue — Last 7 Days</h3>
+              <span class="text-xs px-2 py-1 border border-gold/30 rounded-full text-gold">Weekly</span>
+            </div>
+            <canvas id="revenueChart" height="110"></canvas>
+          </div>
+
+          <div class="card pop p-6">
+            <h3 class="font-display text-lg mb-5">Top Products</h3>
+            <div class="space-y-4" id="topProducts"></div>
+          </div>
+        </div>
+
+        <!-- category split + recent orders -->
+        <div class="grid lg:grid-cols-3 gap-5">
+          <div class="card pop p-6">
+            <h3 class="font-display text-lg mb-5">Sales by Category</h3>
+            <canvas id="categoryChart" height="200"></canvas>
+          </div>
+          <div class="card pop p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="font-display text-lg">Recent Orders</h3>
+              <button onclick="showTab('orders', document.querySelectorAll('.nav-item')[1])" class="text-xs uppercase tracking-widest text-gold border-b border-gold pb-0.5">View all</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-xs uppercase tracking-widest opacity-50 border-b border-gold/15">
+                    <th class="pb-3 pr-4">Order</th><th class="pb-3 pr-4">Customer</th><th class="pb-3 pr-4">Item</th><th class="pb-3 pr-4">Status</th><th class="pb-3 text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="recentOrdersBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ORDERS ===== -->
+      <section id="tab-orders" class="tab-panel space-y-5">
+        <div class="card pop p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <h3 class="font-display text-lg">All Orders</h3>
+            <input type="text" placeholder="Search order or customer…" class="bg-transparent border border-gold/25 px-3 py-2 text-sm rounded outline-none focus:border-gold w-full sm:w-64" oninput="filterOrders(this.value)">
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-xs uppercase tracking-widest opacity-50 border-b border-gold/15">
+                  <th class="pb-3 pr-4">Order</th><th class="pb-3 pr-4">Customer</th><th class="pb-3 pr-4">Item</th><th class="pb-3 pr-4">Phone</th><th class="pb-3 pr-4">Address</th><th class="pb-3 pr-4">Date</th><th class="pb-3 pr-4">Status</th><th class="pb-3 text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody id="allOrdersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PRODUCTS ===== -->
+      <section id="tab-products" class="tab-panel space-y-5">
+        <div class="card pop p-6">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="font-display text-lg">Product Inventory</h3>
+            <button class="pop bg-gradient-to-r from-goldLight to-gold text-noir text-xs uppercase tracking-widest px-4 py-2.5 rounded">+ Add Product</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-xs uppercase tracking-widest opacity-50 border-b border-gold/15">
+                  <th class="pb-3 pr-4">Product</th><th class="pb-3 pr-4">Category</th><th class="pb-3 pr-4">Price</th><th class="pb-3 pr-4">Stock</th><th class="pb-3 pr-4">Sold</th><th class="pb-3">Status</th>
+                </tr>
+              </thead>
+              <tbody id="productsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== CUSTOMERS ===== -->
+      <section id="tab-customers" class="tab-panel space-y-5">
+        <div class="card pop p-6">
+          <h3 class="font-display text-lg mb-5">Customers</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-xs uppercase tracking-widest opacity-50 border-b border-gold/15">
+                  <th class="pb-3 pr-4">Name</th><th class="pb-3 pr-4">City</th><th class="pb-3 pr-4">Orders</th><th class="pb-3 pr-4">Total Spent</th><th class="pb-3">Joined</th>
+                </tr>
+              </thead>
+              <tbody id="customersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== MESSAGES ===== -->
+      <section id="tab-messages" class="tab-panel space-y-5">
+        <div class="card pop p-6">
+          <h3 class="font-display text-lg mb-5">Contact Form Submissions</h3>
+          <div id="messagesList" class="space-y-4"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+/* ===== theme ===== */
+function initTheme(){
+  const saved = localStorage.getItem('ayesha-dash-theme');
+  const isDark = saved === 'dark';
+  document.documentElement.classList.toggle('dark', isDark);
+  syncIcon(isDark);
+}
+function toggleTheme(){
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('ayesha-dash-theme', isDark ? 'dark' : 'light');
+  syncIcon(isDark);
+}
+function syncIcon(isDark){
+  document.getElementById('themeIcon').setAttribute('data-lucide', isDark ? 'sun-medium' : 'moon');
+  lucide.createIcons();
+}
+initTheme();
+
+/* ===== tabs ===== */
+function showTab(name, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+/* ===== mock data (shown until real orders arrive from Firebase) ===== */
+let ORDERS = [
+  { id:'#AT-1042', customer:'Hania Raza', item:'Ivory Embroidered Formal', date:'Jul 22, 2026', status:'Delivered', total:340 },
+  { id:'#AT-1041', customer:'Sarah Malik', item:'Champagne Zari Kurta Set', date:'Jul 22, 2026', status:'Processing', total:265 },
+  { id:'#AT-1040', customer:'Amelia Khan', item:'Emerald Velvet Angrakha', date:'Jul 21, 2026', status:'Shipped', total:295 },
+  { id:'#AT-1039', customer:'Zara Farooq', item:'Noir Chiffon Anarkali', date:'Jul 21, 2026', status:'Delivered', total:210 },
+  { id:'#AT-1038', customer:'Mahnoor Aslam', item:'Rose Chiffon Maxi', date:'Jul 20, 2026', status:'Cancelled', total:150 },
+  { id:'#AT-1037', customer:'Iqra Sheikh', item:'Sand Lawn Co-ord Set', date:'Jul 19, 2026', status:'Delivered', total:180 },
+  { id:'#AT-1036', customer:'Fatima Noor', item:'Beige Embroidered Shawl Set', date:'Jul 19, 2026', status:'Processing', total:250 },
+  { id:'#AT-1035', customer:'Areeba Iqbal', item:'Obsidian Tuxedo Set', date:'Jul 18, 2026', status:'Shipped', total:410 },
+];
+
+const PRODUCTS = [
+  { name:'Ivory Embroidered Formal', cat:'Formal', price:340, stock:12, sold:48, status:'In Stock' },
+  { name:'Champagne Zari Kurta Set', cat:'Formal', price:265, stock:8, sold:31, status:'In Stock' },
+  { name:'Noir Chiffon Anarkali', cat:'New Arrivals', price:210, stock:3, sold:64, status:'Low Stock' },
+  { name:'Sand Lawn Co-ord Set', cat:'Casual', price:180, stock:20, sold:22, status:'In Stock' },
+  { name:'Gold Thread Clutch', cat:'Accessories', price:95, stock:0, sold:57, status:'Out of Stock' },
+  { name:'Emerald Velvet Angrakha', cat:'Formal', price:295, stock:6, sold:19, status:'In Stock' },
+];
+
+const CUSTOMERS = [
+  { name:'Hania Raza', city:'Lahore', orders:6, spent:1840, joined:'Jan 2025' },
+  { name:'Sarah Malik', city:'Dubai', orders:3, spent:960, joined:'Mar 2025' },
+  { name:'Amelia Khan', city:'London', orders:9, spent:3120, joined:'Aug 2024' },
+  { name:'Zara Farooq', city:'Karachi', orders:2, spent:410, joined:'Jun 2025' },
+  { name:'Mahnoor Aslam', city:'Islamabad', orders:4, spent:780, joined:'Feb 2025' },
+];
+
+const MESSAGES = [
+  { name:'Sana Tariq', type:'Custom Order', msg:'I would like a custom formal set for a December wedding, size M.', date:'Jul 22, 2026' },
+  { name:'Rabia Aftab', type:'Sizing & Fitting', msg:'Could you confirm the size chart for the Noir Chiffon Anarkali?', date:'Jul 21, 2026' },
+  { name:'Bilal Hassan', type:'Wholesale / Press', msg:'Interested in a press feature — please share your lookbook.', date:'Jul 20, 2026' },
+];
+
+function statusColor(s){
+  return { Delivered:'text-emerald-600', Processing:'text-amber-600', Shipped:'text-blue-600', Cancelled:'text-red-500',
+           'In Stock':'text-emerald-600', 'Low Stock':'text-amber-600', 'Out of Stock':'text-red-500' }[s] || 'opacity-70';
+}
+function dot(s){
+  return { Delivered:'bg-emerald-500', Processing:'bg-amber-500', Shipped:'bg-blue-500', Cancelled:'bg-red-500',
+           'In Stock':'bg-emerald-500', 'Low Stock':'bg-amber-500', 'Out of Stock':'bg-red-500' }[s] || 'bg-gray-400';
+}
+
+function renderRecentOrders(){
+  document.getElementById('recentOrdersBody').innerHTML = ORDERS.slice(0,5).map(o => `
+    <tr class="border-b border-gold/10 last:border-0">
+      <td class="py-3 pr-4 font-medium">${o.id}</td>
+      <td class="py-3 pr-4">${o.customer}</td>
+      <td class="py-3 pr-4 opacity-70">${o.item}</td>
+      <td class="py-3 pr-4"><span class="badge-dot ${dot(o.status)} mr-2"></span><span class="${statusColor(o.status)}">${o.status}</span></td>
+      <td class="py-3 text-right font-display">$${o.total}</td>
+    </tr>`).join('');
+}
+function renderAllOrders(filter=''){
+  const f = filter.toLowerCase();
+  const list = ORDERS.filter(o => o.id.toLowerCase().includes(f) || o.customer.toLowerCase().includes(f));
+  document.getElementById('allOrdersBody').innerHTML = list.map(o => `
+    <tr class="border-b border-gold/10 last:border-0">
+      <td class="py-3 pr-4 font-medium">${o.id}</td>
+      <td class="py-3 pr-4">${o.customer}</td>
+      <td class="py-3 pr-4 opacity-70">${o.item}</td>
+      <td class="py-3 pr-4 opacity-70">${o.phone || '—'}</td>
+      <td class="py-3 pr-4 opacity-70">${[o.address, o.city].filter(Boolean).join(', ') || '—'}</td>
+      <td class="py-3 pr-4 opacity-60">${o.date}</td>
+      <td class="py-3 pr-4"><span class="badge-dot ${dot(o.status)} mr-2"></span><span class="${statusColor(o.status)}">${o.status}</span></td>
+      <td class="py-3 text-right font-display">$${o.total}</td>
+    </tr>`).join('');
+}
+function filterOrders(v){ renderAllOrders(v); }
+
+function renderProducts(){
+  document.getElementById('productsBody').innerHTML = PRODUCTS.map(p => `
+    <tr class="border-b border-gold/10 last:border-0">
+      <td class="py-3 pr-4 font-medium">${p.name}</td>
+      <td class="py-3 pr-4 opacity-70">${p.cat}</td>
+      <td class="py-3 pr-4 font-display">$${p.price}</td>
+      <td class="py-3 pr-4">${p.stock}</td>
+      <td class="py-3 pr-4">${p.sold}</td>
+      <td class="py-3"><span class="badge-dot ${dot(p.status)} mr-2"></span><span class="${statusColor(p.status)}">${p.status}</span></td>
+    </tr>`).join('');
+
+  const top = [...PRODUCTS].sort((a,b)=>b.sold-a.sold).slice(0,4);
+  document.getElementById('topProducts').innerHTML = top.map(p => `
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm">${p.name}</p>
+        <p class="text-xs opacity-50">${p.sold} sold</p>
+      </div>
+      <span class="font-display text-sm">$${p.price}</span>
+    </div>`).join('');
+}
+
+function renderCustomers(){
+  document.getElementById('customersBody').innerHTML = CUSTOMERS.map(c => `
+    <tr class="border-b border-gold/10 last:border-0">
+      <td class="py-3 pr-4 font-medium">${c.name}</td>
+      <td class="py-3 pr-4 opacity-70">${c.city}</td>
+      <td class="py-3 pr-4">${c.orders}</td>
+      <td class="py-3 pr-4 font-display">$${c.spent}</td>
+      <td class="py-3 opacity-60">${c.joined}</td>
+    </tr>`).join('');
+}
+
+function renderMessages(){
+  document.getElementById('messagesList').innerHTML = MESSAGES.map(m => `
+    <div class="border border-gold/15 p-4 rounded pop">
+      <div class="flex items-center justify-between mb-1">
+        <p class="font-display">${m.name}</p>
+        <span class="text-xs opacity-50">${m.date}</span>
+      </div>
+      <p class="text-xs text-gold uppercase tracking-widest mb-2">${m.type}</p>
+      <p class="text-sm opacity-75">${m.msg}</p>
+    </div>`).join('');
+}
+
+/* ===== live orders from the store (Firebase) ===== */
+function listenToOrders(){
+  db.collection('orders').orderBy('createdAt', 'desc').onSnapshot((snap) => {
+    const liveOrders = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      const itemText = (d.items || []).map(i => `${i.title} (x${i.qty})`).join(', ');
+      const dateStr = (d.createdAt && d.createdAt.toDate)
+        ? d.createdAt.toDate().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+        : 'Just now';
+      liveOrders.push({
+        id: '#' + (d.orderId || doc.id),
+        customer: d.customerName || 'Unknown',
+        item: itemText || '—',
+        date: dateStr,
+        status: d.status || 'Processing',
+        total: d.total || 0,
+        phone: d.phone || '',
+        address: d.address || '',
+        city: d.city || ''
+      });
+    });
+    if(liveOrders.length > 0){
+      ORDERS = liveOrders; // replace sample data with real orders once they start coming in
+    }
+    renderRecentOrders();
+    renderAllOrders(document.querySelector('#tab-orders input')?.value || '');
+  }, (err) => {
+    console.warn('Could not load live orders from Firebase — check your firebaseConfig.', err);
+  });
+}
+
+renderRecentOrders(); renderAllOrders(); renderProducts(); renderCustomers(); renderMessages();
+listenToOrders();
+
+/* ===== charts ===== */
+Chart.defaults.font.family = 'Inter';
+Chart.defaults.color = '#8a8378';
+
+new Chart(document.getElementById('revenueChart'), {
+  type: 'line',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [{
+      label: 'Revenue',
+      data: [1200, 1900, 1500, 2400, 2100, 3200, 2800],
+      borderColor: '#C5A059',
+      backgroundColor: 'rgba(197,160,89,0.12)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+      pointBackgroundColor: '#C5A059',
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: { y: { grid: { color: 'rgba(197,160,89,.08)' } }, x: { grid: { display:false } } }
+  }
+});
+
+new Chart(document.getElementById('categoryChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Formal','Casual','New Arrivals','Accessories'],
+    datasets: [{
+      data: [42, 21, 27, 10],
+      backgroundColor: ['#C5A059','#1A1A1A','#D4AF37','#F4EFEA'],
+      borderColor: '#FAF9F6',
+      borderWidth: 2,
+    }]
+  },
+  options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+});
+</script>
+</body>
+</html>

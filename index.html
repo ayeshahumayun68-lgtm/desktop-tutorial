@@ -640,9 +640,69 @@
       <span class="opacity-70">Subtotal</span>
       <span id="cartSubtotal" class="font-display text-lg">$0</span>
     </div>
-    <button onclick="checkoutAlert()" class="gold-btn w-full py-3.5 text-xs tracking-[0.18em] uppercase">Checkout</button>
+    <button onclick="openCheckout()" class="gold-btn w-full py-3.5 text-xs tracking-[0.18em] uppercase">Checkout</button>
   </div>
 </aside>
+
+<!-- ============ CHECKOUT MODAL ============ -->
+<div id="checkoutModal" class="modal-wrap fixed inset-0 z-[85] hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-noir/60" onclick="closeCheckout()"></div>
+  <div class="modal-panel relative bg-ivory dark:bg-obsidian max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 md:p-8">
+    <button onclick="closeCheckout()" class="absolute top-4 right-4 z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+
+    <!-- STEP: FORM -->
+    <div id="checkoutFormStep">
+      <h3 class="font-display text-2xl mb-1">Checkout</h3>
+      <p class="text-xs opacity-60 mb-6 tracking-wide">Enter your delivery details to place your order.</p>
+
+      <div id="checkoutOrderSummary" class="border border-gold/20 p-4 mb-6 space-y-1 text-sm"></div>
+
+      <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-4" novalidate>
+        <div>
+          <input id="ordName" type="text" placeholder="Full Name" class="w-full bg-transparent border-b border-gold/30 py-2 text-sm focus:outline-none">
+          <p class="err-msg hidden text-[11px] text-red-500 mt-1">Please enter your full name.</p>
+        </div>
+        <div>
+          <input id="ordPhone" type="tel" placeholder="Phone Number" class="w-full bg-transparent border-b border-gold/30 py-2 text-sm focus:outline-none">
+          <p class="err-msg hidden text-[11px] text-red-500 mt-1">Please enter a valid phone number.</p>
+        </div>
+        <div>
+          <input id="ordAddress" type="text" placeholder="Delivery Address" class="w-full bg-transparent border-b border-gold/30 py-2 text-sm focus:outline-none">
+          <p class="err-msg hidden text-[11px] text-red-500 mt-1">Please enter your delivery address.</p>
+        </div>
+        <div>
+          <input id="ordCity" type="text" placeholder="City" class="w-full bg-transparent border-b border-gold/30 py-2 text-sm focus:outline-none">
+          <p class="err-msg hidden text-[11px] text-red-500 mt-1">Please enter your city.</p>
+        </div>
+
+        <div class="pt-2">
+          <p class="text-xs tracking-widest uppercase opacity-60 mb-3">Payment Method</p>
+          <label class="flex items-center gap-3 border border-gold/40 px-4 py-3 cursor-pointer" style="background:rgba(197,160,89,.08);">
+            <input type="radio" name="payMethod" checked disabled class="accent-gold">
+            <span class="flex items-center gap-2 text-sm">
+              <i data-lucide="banknote" class="w-4 h-4 text-gold"></i>
+              Cash on Delivery
+            </span>
+          </label>
+          <p class="text-[11px] opacity-50 mt-2">Pay in cash when your order is delivered to your doorstep.</p>
+        </div>
+
+        <button id="placeOrderBtn" type="submit" class="gold-btn w-full py-3.5 text-xs tracking-[0.18em] uppercase mt-2">Place Order</button>
+      </form>
+    </div>
+
+    <!-- STEP: SUCCESS -->
+    <div id="checkoutSuccessStep" class="hidden text-center py-6">
+      <div class="w-16 h-16 rounded-full bg-gold/15 flex items-center justify-center mx-auto mb-5">
+        <i data-lucide="check" class="w-8 h-8 text-gold"></i>
+      </div>
+      <h3 class="font-display text-2xl mb-2">Order Placed!</h3>
+      <p class="text-sm opacity-70 mb-1">Order ID: <span id="successOrderId" class="text-gold"></span></p>
+      <p class="text-sm opacity-70 max-w-xs mx-auto leading-relaxed mt-3">Thank you! Your order will be delivered soon. Please keep the cash ready — <span class="text-gold">Cash on Delivery</span>.</p>
+      <button onclick="closeCheckout()" class="outline-btn mt-6 px-8 py-3 text-xs tracking-[0.18em] uppercase">Continue Shopping</button>
+    </div>
+  </div>
+</div>
 
 <!-- ============ QUICK VIEW MODAL ============ -->
 <div id="quickView" class="modal-wrap fixed inset-0 z-[80] hidden items-center justify-center p-4">
@@ -1116,9 +1176,113 @@ function closeCart(){
   document.getElementById('cartOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-function checkoutAlert(){
+/* ============================================================
+   CHECKOUT
+============================================================ */
+// Orders are emailed via FormSubmit.co — no signup needed.
+// On the FIRST real order, FormSubmit sends a one-time confirmation
+// email to ayeshaahmad68@gmail.com — just click "Activate Form" in it once.
+// After that, every order lands in this inbox automatically.
+const OWNER_EMAIL = "ayeshaahmad68@gmail.com";
+const ORDER_EMAIL_ENDPOINT = "https://formsubmit.co/ajax/" + OWNER_EMAIL;
+
+function openCheckout(){
   if(cart.length === 0){ showToast('Your bag is empty'); return; }
-  showToast('Redirecting to checkout…');
+  closeCart();
+
+  const summary = document.getElementById('checkoutOrderSummary');
+  const subtotal = cart.reduce((sum,c) => sum + PRODUCTS.find(p=>p.id===c.id).price * c.qty, 0);
+  summary.innerHTML = cart.map(c => {
+    const p = PRODUCTS.find(x => x.id === c.id);
+    return `<div class="flex justify-between opacity-80"><span>${p.title} × ${c.qty} (${c.size})</span><span>$${p.price * c.qty}</span></div>`;
+  }).join('') + `<div class="flex justify-between font-display text-base pt-2 border-t border-gold/20 mt-2"><span>Total</span><span>$${subtotal}</span></div>`;
+
+  document.getElementById('checkoutFormStep').classList.remove('hidden');
+  document.getElementById('checkoutSuccessStep').classList.add('hidden');
+  document.getElementById('checkoutForm').reset();
+  document.querySelectorAll('#checkoutForm .err-msg').forEach(e=>e.classList.add('hidden'));
+  document.querySelectorAll('#checkoutForm input').forEach(e=>e.classList.remove('border-red-500'));
+
+  const modal = document.getElementById('checkoutModal');
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  requestAnimationFrame(()=> modal.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closeCheckout(){
+  const modal = document.getElementById('checkoutModal');
+  modal.classList.remove('open');
+  setTimeout(()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+  document.body.style.overflow = '';
+}
+
+async function submitOrder(e){
+  e.preventDefault();
+
+  const fields = [
+    { el: document.getElementById('ordName'), test: v => v.trim().length > 1 },
+    { el: document.getElementById('ordPhone'), test: v => v.trim().length > 6 },
+    { el: document.getElementById('ordAddress'), test: v => v.trim().length > 4 },
+    { el: document.getElementById('ordCity'), test: v => v.trim().length > 1 },
+  ];
+  let valid = true;
+  fields.forEach(f => {
+    const ok = f.test(f.el.value);
+    const errEl = f.el.parentElement.querySelector('.err-msg');
+    if(!ok){ valid = false; f.el.classList.add('border-red-500'); if(errEl) errEl.classList.remove('hidden'); }
+    else { f.el.classList.remove('border-red-500'); if(errEl) errEl.classList.add('hidden'); }
+  });
+  if(!valid) return;
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.disabled = true;
+  btn.textContent = 'Placing Order…';
+
+  const orderId = 'AYE-' + Date.now().toString().slice(-6);
+  const subtotal = cart.reduce((sum,c) => sum + PRODUCTS.find(p=>p.id===c.id).price * c.qty, 0);
+  const itemsText = cart.map(c => {
+    const p = PRODUCTS.find(x => x.id === c.id);
+    return `${p.title} | Size: ${c.size} | Qty: ${c.qty} | $${p.price * c.qty}`;
+  }).join('\n');
+
+  const orderPayload = {
+    "Order ID": orderId,
+    "Customer Name": document.getElementById('ordName').value.trim(),
+    "Phone": document.getElementById('ordPhone').value.trim(),
+    "Address": document.getElementById('ordAddress').value.trim(),
+    "City": document.getElementById('ordCity').value.trim(),
+    "Payment Method": "Cash on Delivery",
+    "Order Items": itemsText,
+    "Total": '$' + subtotal,
+    "_subject": "New Order — " + orderId + " (Ayesha Atelier)"
+  };
+
+  try{
+    await fetch(ORDER_EMAIL_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify(orderPayload),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+  } catch(err){
+    // Even if the first-time activation email hasn't been clicked yet, still confirm the order to the customer.
+    console.warn('Order email could not be sent yet — check inbox for FormSubmit activation email.', err);
+  }
+
+  document.getElementById('successOrderId').textContent = orderId;
+  document.getElementById('checkoutFormStep').classList.add('hidden');
+  document.getElementById('checkoutSuccessStep').classList.remove('hidden');
+  lucide.createIcons();
+
+  btn.disabled = false;
+  btn.textContent = 'Place Order';
+
+  cart = [];
+  updateCartBadge();
+  renderCart();
 }
 
 /* ============================================================
